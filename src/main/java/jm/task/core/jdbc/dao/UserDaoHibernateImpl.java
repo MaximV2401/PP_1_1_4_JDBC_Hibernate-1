@@ -55,13 +55,19 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void saveUser(String name, String lastName, byte age) {
-        Transaction tx;
+        Transaction tx = null;
         User user = new User(name, lastName, age);
         try (Session session = sessionFactory.openSession()){
             tx = session.beginTransaction();
             session.persist(user);
             tx.commit();
+        } catch (Exception e) {
+            if (tx != null) {
+                tx.rollback();
+            }
+
         }
+
     }
 
     @Override
@@ -84,17 +90,12 @@ public class UserDaoHibernateImpl implements UserDao {
     @Override
     public List<User> getAllUsers() {
         try(Session session = sessionFactory.openSession()) {
-           return  session.createQuery("from User", User.class).getResultList();
+           return  session.createQuery("from User", User.class).list();
 
         } catch (HibernateException e) {
             e.printStackTrace();
 
         }
-
-
-
-
-
         return null;
     }
 
