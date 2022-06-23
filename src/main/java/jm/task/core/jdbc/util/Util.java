@@ -17,6 +17,7 @@ public class Util {
             prop.setProperty("hibernate.connection.username", "root");
             prop.setProperty("hibernate.connection.password", "ghjuf2401");
             prop.setProperty("dialect", "org.hibernate.dialect.MySQLDialect");
+            prop.setProperty("autocommit", "false");
 
             sessionFactory = new Configuration()
                     .addPackage("com.concretepage.persistence")

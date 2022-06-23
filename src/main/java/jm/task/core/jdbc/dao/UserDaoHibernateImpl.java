@@ -14,6 +14,17 @@ import java.util.List;
 
 
 public class UserDaoHibernateImpl implements UserDao {
+
+    private  final String CREATE = "CREATE TABLE IF NOT EXISTS users(" +
+            "id bigint AUTO_INCREMENT PRIMARY KEY not null ," +
+            "name varchar(30)," +
+            "lastname varchar(30)," +
+            "age tinyint UNSIGNED)";
+    private final String DROP = "DROP TABLE IF EXISTS users";
+
+    private final String CLEAN = "TRUNCATE FROM users";
+
+
     public UserDaoHibernateImpl() {
 
     }
@@ -22,16 +33,12 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void createUsersTable() {
-        sql = "CREATE TABLE IF NOT EXISTS users(" +
-                "id bigint AUTO_INCREMENT PRIMARY KEY not null ," +
-                "name varchar(30)," +
-                "lastname varchar(30)," +
-                "age tinyint UNSIGNED)";
-        Transaction tx;
+
+
         try (Session session = sessionFactory.openSession()){
-            tx = session.beginTransaction();
-            session.createNativeMutationQuery(sql).executeUpdate();
-            tx.commit();
+            session.beginTransaction();
+            session.createNativeMutationQuery(CREATE).executeUpdate();
+           session.getTransaction().commit();
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
@@ -41,12 +48,12 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void dropUsersTable() {
-        sql = "DROP TABLE IF EXISTS users";
-        Transaction tx;
+
+
         try (Session session = sessionFactory.openSession()){
-            tx = session.beginTransaction();
-            session.createNativeMutationQuery(sql).executeUpdate();
-            tx.commit();
+           session.beginTransaction();
+            session.createNativeMutationQuery(DROP).executeUpdate();
+            session.getTransaction().commit();
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
@@ -55,15 +62,15 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void saveUser(String name, String lastName, byte age) {
-        Transaction tx = null;
+        Transaction transaction = null;
         User user = new User(name, lastName, age);
         try (Session session = sessionFactory.openSession()){
-            tx = session.beginTransaction();
+            session.beginTransaction();
             session.persist(user);
-            tx.commit();
+            transaction.commit();
         } catch (Exception e) {
-            if (tx != null) {
-                tx.rollback();
+            if (transaction != null) {
+                transaction.rollback();
             }
 
         }
@@ -72,17 +79,17 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void removeUserById(long id) {
-        Transaction tx = null;
+        Transaction transaction = null;
         try (Session session = sessionFactory.openSession()){
             User user = session.get(User.class, id);
-            tx = session.beginTransaction();
+            transaction = session.beginTransaction();
             if (user !=null) {
                 session.remove(user);
             }
-            tx.commit();
+            transaction.commit();
         } catch (Exception e) {
-            if (tx != null) {
-                tx.rollback();
+            if (transaction != null) {
+                transaction.rollback();
             }
         }
     }
@@ -101,12 +108,12 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void cleanUsersTable() {
-        sql = "DELETE FROM users";
-        Transaction tx;
+
+
         try (Session session = sessionFactory.openSession()){
-            tx = session.beginTransaction();
-            session.createNativeMutationQuery(sql).executeUpdate();
-            tx.commit();
+            session.beginTransaction();
+            session.createNativeMutationQuery(CLEAN).executeUpdate();
+            session.getTransaction().commit();
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
